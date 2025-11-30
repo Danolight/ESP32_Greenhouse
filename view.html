@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Visualización - Invernadero</title>
+    <script>
+        // Apply theme IMMEDIATELY before anything else to prevent flash
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                    document.documentElement.setAttribute('style', 'background-color: #0a0f1e !important;');
+                    if (document.body) {
+                        document.body.classList.add('dark-theme');
+                        document.body.setAttribute('style', 'background-color: #0a0f1e !important; color: #ffffff !important;');
+                    } else {
+                        document.addEventListener('DOMContentLoaded', function() {
+                            document.body.classList.add('dark-theme');
+                            document.body.setAttribute('style', 'background-color: #0a0f1e !important; color: #ffffff !important;');
+                        });
+                    }
+                }
+            } catch(e) {
+                console.error('Error applying theme:', e);
+            }
+        })();
+    </script>
+    <style>
+        /* Critical theme styles */
+        html { background-color: #f3f4f6 !important; transition: background-color 0.5s ease; }
+        html.dark-theme { background-color: #0a0f1e !important; }
+        body { background-color: #f3f4f6 !important; color: #1f2937; transition: background-color 0.5s ease, color 0.5s ease; }
+        html.dark-theme body { background-color: #0a0f1e !important; color: #ffffff !important; }
+        
+        /* Dark theme overrides */
+        html.dark-theme .card { background: linear-gradient(135deg, #111827 0%, #0f172a 100%) !important; border-color: #1e293b !important; color: #ffffff !important; }
+        html.dark-theme header { background: linear-gradient(135deg, #111827 0%, #0f172a 100%) !important; border-color: #1e293b !important; }
+        html.dark-theme .tank-visual-wrapper { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; border-color: #475569 !important; }
+        html.dark-theme .chart-wrapper { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important; }
+        html.dark-theme .system-status { background: linear-gradient(135deg, #064e3b 0%, #047857 100%) !important; border-color: #059669 !important; }
+        html.dark-theme .system-status span { color: #d1fae5 !important; }
+        html.dark-theme .metric-value { background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; background-clip: text !important; }
+        html.dark-theme .card-title, html.dark-theme .brand span, html.dark-theme .metric-footer, html.dark-theme .metric-unit { color: #cbd5e1 !important; }
+        html.dark-theme .theme-toggle-btn { background: #1e293b !important; border-color: #475569 !important; }
+        html.dark-theme .theme-toggle-btn .theme-icon { color: #e2e8f0 !important; }
+        html.dark-theme .logout-btn { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important; }
+        html.dark-theme .interactive-card.active-temp { border-color: #f59e0b !important; background: linear-gradient(135deg, #422006 0%, #3d1f08 100%) !important; }
+        html.dark-theme .interactive-card.active-humidity { border-color: #3b82f6 !important; background: linear-gradient(135deg, #1e3a5f 0%, #1a2e4a 100%) !important; }
+        html.dark-theme .interactive-card.active-soil { border-color: #10b981 !important; background: linear-gradient(135deg, #064e3b 0%, #053d2f 100%) !important; }
+        html.dark-theme .header-buttons { border-left-color: #475569 !important; }
+
+        /* View Page Specific Layout */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Force 4 columns for metrics row, overriding style.css */
+        .metrics-row {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 24px !important;
+        }
+
+        .app-container > .card {
+            width: 100%;
+        }
+        
+        /* Tank styling adjustments to match index.html structure */
+        .tank-container {
+            display: flex;
+            gap: 24px;
+            align-items: stretch;
+        }
+        
+        .tank-visual-wrapper {
+            width: 80px;
+            height: 160px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+        
+        .water-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+            transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0.8;
+        }
+        
+        .tank-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .tank-level-display {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .tank-value-wrapper {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+        
+        .tank-chart-section {
+            flex: 1;
+            min-height: 100px;
+        }
+        
+        .tank-chart-wrapper {
+            width: 100%;
+            height: 100%;
+            min-height: 80px;
+        }
+        
+        /* Critical branding styles for LCP */
+        .brand {
+            display: flex;
+            flex-direction: column;
+        }
+        .brand h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin: 0;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+        html.dark-theme .brand h1 {
+            color: #f3f4f6 !important;
+        }
+        .brand span {
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            background: #ffffff;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-left: 12px;
+            border-left: 1px solid #e5e7eb;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .metrics-row {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .metrics-row {
+                grid-template-columns: 1fr !important;
+            }
+            .tank-container {
+                flex-direction: column;
+            }
+            .tank-visual-wrapper {
+                width: 100%;
+                height: 100px;
+            }
+            .water-fill {
+                width: 100%;
+                height: 100%;
+                transform-origin: left;
+                transform: scaleX(var(--level, 0));
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        // Page transition & Auth
+        function navigateWithTransition(url) {
+            if (document.body) {
+                document.body.classList.add('page-exiting');
+                setTimeout(() => window.location.href = url, 200);
+            } else {
+                window.location.href = url;
+            }
+        }
+        
+        (function() {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.log('Localhost detected: Bypassing auth check');
+                return;
+            }
+            const isAuthenticated = localStorage.getItem('isAuthenticated');
+            if (!isAuthenticated || isAuthenticated !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            history.replaceState(null, null, window.location.href);
+        })();
+        
+        window.addEventListener('popstate', function(event) {
+            const isAuthenticated = localStorage.getItem('isAuthenticated');
+            if (!isAuthenticated || isAuthenticated !== 'true') {
+                window.location.href = 'login.html';
+            } else {
+                history.pushState(null, null, window.location.href);
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="theme-transition-overlay" id="theme-transition-overlay"></div>
+    
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="brand">
+                <h1>Panel de Visualización</h1>
+                <span>Sistema de Monitoreo de Invernadero</span>
+            </div>
+            <div class="header-actions">
+                <div class="system-status" id="connection-status">
+                    <div class="status-dot" id="status-dot"></div>
+                    <span id="status-text">Conectado</span>
+                </div>
+                <div class="header-buttons">
+                    <button class="header-btn logout-btn" id="logout-btn" aria-label="Cerrar sesión" onclick="logout()" title="Cerrar sesión">
+                        <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </button>
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Metrics Cards Row -->
+        <div class="metrics-row">
+            <!-- Temperatura -->
+            <div class="card interactive-card active-metric active-temp" onclick="showChart('temp')" id="card-temp">
+                <div class="card-header">
+                    <span class="card-title">Temperatura</span>
+                    <div class="icon-box bg-yellow">T°</div>
+                </div>
+                <div>
+                    <span class="metric-value" id="temp">--</span><span class="metric-unit">°C</span>
+                </div>
+                <div class="metric-footer">Aire Ambiente</div>
+            </div>
+
+            <!-- Humedad -->
+            <div class="card interactive-card" onclick="showChart('humidity')" id="card-humidity">
+                <div class="card-header">
+                    <span class="card-title">Humedad</span>
+                    <div class="icon-box bg-blue">H%</div>
+                </div>
+                <div>
+                    <span class="metric-value" id="humidity">--</span><span class="metric-unit">%</span>
+                </div>
+                <div class="metric-footer">Humedad Relativa</div>
+            </div>
+
+            <!-- Suelo -->
+            <div class="card interactive-card" onclick="showChart('soil')" id="card-soil">
+                <div class="card-header">
+                    <span class="card-title">Suelo</span>
+                    <div class="icon-box bg-green">S%</div>
+                </div>
+                <div>
+                    <span class="metric-value" id="soil">--</span><span class="metric-unit">%</span>
+                </div>
+                <div class="metric-footer">Humedad de Tierra</div>
+            </div>
+
+            <!-- Luminosidad -->
+            <div class="card" id="card-light">
+                <div class="card-header">
+                    <span class="card-title">Luminosidad</span>
+                    <div class="icon-box bg-orange">L%</div>
+                </div>
+                <div>
+                    <span class="metric-value" id="light">--</span><span class="metric-unit">%</span>
+                </div>
+                <div class="metric-footer">Intensidad Lumínica</div>
+            </div>
+        </div>
+
+        <!-- Tank Status Card -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Estado del Tanque</span>
+            </div>
+            <div class="tank-container">
+                <div class="tank-visual-wrapper">
+                    <div id="water-level" class="water-fill" style="height: 0%;"></div>
+                </div>
+                <div class="tank-info">
+                    <div class="tank-level-display">
+                        <div class="tank-value-wrapper">
+                            <span class="metric-value" id="tank">--</span><span class="metric-unit">%</span>
+                        </div>
+                        <p class="tank-last-filled" id="tank-last-filled">Último llenado: --</p>
+                        <p class="tank-error-msg" id="tank-warning"></p>
+                    </div>
+                    <div class="tank-chart-section">
+                        <div class="tank-chart-wrapper">
+                            <canvas id="tankSparkline"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Card -->
+        <div class="card">
+            <div class="card-header" style="align-items: center;">
+                <span class="card-title" id="chart-title" style="color: #f59e0b;">Gráfico: Temperatura</span>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="historyChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Defer Chart.js to improve initial load -->
+    <script>
+        // Load Chart.js asynchronously
+        (function() {
+            const chartScript = document.createElement('script');
+            chartScript.src = 'chart.js';
+            chartScript.defer = true;
+            document.body.appendChild(chartScript);
+        })();
+    </script>
+    <script src="view.js" defer></script>
+</body>
+</html>

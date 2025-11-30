@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invernadero Inteligente - Iniciar Sesión</title>
+    <script>
+        // Apply theme IMMEDIATELY before anything else to prevent flash
+        // Apply theme IMMEDIATELY before anything else to prevent flash
+        (function() {
+            // Add preload class to disable transitions
+            document.documentElement.classList.add('preload');
+            
+            // Helpers that safely operate on document.body even if run in <head>
+            function addBodyClassWhenReady(cls) {
+                if (document.body) return document.body.classList.add(cls);
+                document.addEventListener('DOMContentLoaded', function() { if (document.body) document.body.classList.add(cls); });
+            }
+            function setBodyWhenReady(fn) {
+                if (document.body) return fn(document.body);
+                document.addEventListener('DOMContentLoaded', function() { if (document.body) fn(document.body); });
+            }
+
+            try {
+                const savedTheme = localStorage.getItem('theme');
+                
+                if (savedTheme === 'dark') {
+                    // Apply class and styles immediately for documentElement
+                    document.documentElement.classList.add('dark-theme');
+                    document.documentElement.style.setProperty('background-color', '#0a0f1e', 'important');
+                    
+                    // Try to apply to body when ready
+                    setBodyWhenReady(function(b) {
+                        b.classList.add('dark-theme');
+                        b.style.setProperty('background-color', '#0a0f1e', 'important');
+                        b.style.setProperty('color', '#ffffff', 'important');
+                    });
+                } else {
+                    // Force light theme styles explicitly to prevent inheritance issues
+                     document.documentElement.style.setProperty('background-color', '#f3f4f6');
+                }
+                
+                // Remove preload class after a short delay to enable transitions
+                window.addEventListener('load', function() {
+                    setTimeout(function() {
+                        document.documentElement.classList.remove('preload');
+                        if (document.body) document.body.classList.remove('preload');
+                        
+                        // Initialize icon state correctly
+                        const icon = document.querySelector('.theme-icon');
+                        if (icon) {
+                            if (savedTheme === 'dark') {
+                                icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+                            } else {
+                                icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+                            }
+                        }
+                    }, 50);
+                });
+                
+            } catch(e) {
+                console.error('Error applying theme:', e);
+            }
+        })();
+    </script>
+    <style>
+        /* Critical theme styles to prevent flash - must be inline */
+        html {
+            background-color: #f3f4f6;
+        }
+        html.dark-theme {
+            background-color: #0a0f1e !important;
+        }
+        body {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            transition: background-color 0.5s ease, color 0.5s ease;
+            opacity: 1;
+        }
+        html.dark-theme body {
+            background-color: #0a0f1e !important;
+            color: #ffffff !important;
+        }
+        /* Prevent transitions on load */
+        .preload * {
+            transition: none !important;
+        }
+        
+        /* Auth card (use global variables for consistency) */
+        .auth-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        html.dark-theme .auth-card {
+            background: linear-gradient(135deg, var(--card-bg) 0%, #111827 100%) !important;
+            border-color: var(--border-color) !important;
+        }
+        /* Text elements */
+        html.dark-theme .auth-title {
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+        }
+        html.dark-theme .auth-subtitle,
+        html.dark-theme .form-label,
+        html.dark-theme .remember-me label,
+        html.dark-theme .auth-footer-text {
+            color: #cbd5e1 !important;
+        }
+        /* Form inputs */
+        html.dark-theme .form-input {
+            background: #0f172a !important;
+            border-color: #475569 !important;
+            color: #f1f5f9 !important;
+        }
+        html.dark-theme .form-input::placeholder {
+            color: #64748b !important;
+            opacity: 0.5 !important;
+        }
+        /* Buttons */
+        html.dark-theme .auth-btn {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+        }
+        html.dark-theme .auth-btn-secondary {
+            border-color: #475569 !important;
+            color: #e2e8f0 !important;
+        }
+        html.dark-theme .auth-btn-secondary:hover {
+            background: #0f172a !important;
+            border-color: #64748b !important;
+        }
+        /* Auth logo */
+        html.dark-theme .auth-logo {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+        }
+        /* Theme toggle */
+        html.dark-theme .theme-toggle-btn {
+            background: #1e293b !important;
+            border-color: #475569 !important;
+        }
+        html.dark-theme .theme-toggle-btn .theme-icon {
+            color: #e2e8f0 !important;
+        }
+        /* Links */
+        html.dark-theme .auth-link,
+        html.dark-theme .forgot-link {
+            color: #60a5fa !important;
+        }
+        /* Error message */
+        html.dark-theme .error-message {
+            background: rgba(220, 38, 38, 0.1) !important;
+            border-color: rgba(220, 38, 38, 0.2) !important;
+            color: #fca5a5 !important;
+        }
+        
+        /* Natural Palette Overrides for Dark Mode */
+        html.dark-theme .auth-card {
+            background: linear-gradient(135deg, #111827 0%, #0f172a 100%) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+        }
+        
+        html.dark-theme .auth-title {
+            background: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 100%) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+        
+        html.dark-theme .form-input {
+            background-color: rgba(17, 24, 39, 0.8) !important;
+            border-color: rgba(75, 85, 99, 0.4) !important;
+            color: #e5e7eb !important;
+        }
+        
+        html.dark-theme .form-input:focus {
+            border-color: #059669 !important; /* Emerald 600 */
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1) !important;
+        }
+        
+        /* Critical auth styles for instant rendering */
+        .auth-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
+        html.dark-theme .auth-title {
+            color: #f3f4f6 !important;
+        }
+        .auth-subtitle {
+            font-size: 1.15rem;
+            color: #6b7280;
+            font-weight: 400;
+            line-height: 1.6;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+        html.dark-theme .auth-subtitle {
+            color: #cbd5e1 !important;
+        }
+    </style>
+    <style>
+        /* Transition overlay and loader */
+        .theme-transition-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.18s ease, opacity 0.18s ease;
+            opacity: 0;
+        }
+        .theme-transition-overlay.active {
+            pointer-events: auto;
+            background-color: rgba(10,15,30,0.6);
+            opacity: 1;
+        }
+
+        .page-loader {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 12px 16px;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-family: inherit;
+        }
+        body.dark-theme .page-loader {
+            background: rgba(12,17,28,0.6);
+            color: var(--text-primary);
+            border-color: rgba(255,255,255,0.04);
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.12);
+            border-top-color: #10b981;
+            animation: spin 0.85s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+        }
+
+        /* Optional page exit animation for small polishing */
+        .page-exiting .auth-card {
+            transform: translateY(-6px) scale(0.998);
+            opacity: 0.98;
+            transition: transform 0.12s ease, opacity 0.12s ease;
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        // Ensure theme is applied (safe check for document.body)
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark-theme');
+                if (document.body) {
+                    document.body.classList.add('dark-theme');
+                }
+            }
+        })();
+    </script>
+    <style>
+        /* Authentication Page Specific Styles */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: var(--bg-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative SVG styling */
+        .decorative-leaf {
+            position: absolute;
+            right: -8%;
+            top: -6%;
+            width: 58%;
+            height: auto;
+            opacity: 0.36;
+            filter: blur(6px) saturate(1.05);
+            transform: rotate(-12deg) scale(1.06);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Subtle background pattern */
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body.dark-theme .auth-container::before {
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(79, 70, 229, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.04) 0%, transparent 50%);
+        }
+
+
+        .auth-card {
+            width: 100%;
+            max-width: 480px;
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg) 100%);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1), 0 10px 20px -5px rgba(0,0,0,0.04);
+            border: 1px solid var(--card-bg);
+            transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
+        }
+
+        body.dark-theme .auth-card {
+            background: linear-gradient(135deg, #1e293b 0%, #111827 100%);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 10px 20px rgba(0,0,0,0.3);
+            border-color: #1e293b;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .auth-logo {
+            width: 88px;
+            height: 88px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.25rem;
+            color: white;
+            box-shadow: 0 12px 28px rgba(16, 185, 129, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translate(-25%, -25%) scale(1); opacity: 0; }
+            50% { transform: translate(0%, 0%) scale(1.2); opacity: 1; }
+        }
+
+        body.dark-theme .auth-logo {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 12px 28px rgba(5, 150, 105, 0.18);
+        }
+
+        .auth-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
+
+        body.dark-theme .auth-title {
+            color: #f3f4f6;
+        }
+
+        .auth-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            line-height: 1.6;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-left: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            font-size: 1.15rem;
+            font-weight: 500;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16,185,129,0.06), 0 4px 16px rgba(0,0,0,0.06);
+        }
+
+        body.dark-theme .form-input {
+            background: #0f172a;
+            border-color: #475569;
+        }
+
+        body.dark-theme .form-input:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16,185,129,0.08), 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 18px 32px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+            margin-top: 16px;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.5);
+        }
+
+        .auth-btn:active {
+            transform: translateY(0) scale(0.99);
+        }
+
+        body.dark-theme .auth-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
+        }
+
+        body.dark-theme .auth-btn:hover {
+            box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.4);
+        }
+
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: none;
+            margin-bottom: 16px;
+        }
+
+        body.dark-theme .error-message {
+            background: #7f1d1d;
+            border-color: #991b1b;
+            color: #fca5a5;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .auth-btn-secondary {
+            width: 100%;
+            padding: 14px 24px;
+            background: transparent;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.045em;
+            cursor: pointer;
+            transition: transform 0.18s ease, background 0.18s ease;
+            margin-top: 16px;
+        }
+
+        .auth-btn-secondary:hover {
+            background: var(--bg-color);
+            border-color: var(--text-secondary);
+            transform: translateY(-2px);
+        }
+
+        .auth-btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        body.dark-theme .auth-btn-secondary {
+            border-color: #475569;
+            color: var(--text-primary);
+        }
+
+        body.dark-theme .auth-btn-secondary:hover {
+            background: #0f172a;
+            border-color: #64748b;
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 32px 24px;
+            }
+
+            .auth-title {
+                font-size: 1.65rem;
+            }
+
+            .form-input {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-transition-overlay" id="theme-transition-overlay">
+        <div id="page-loader" class="page-loader" aria-hidden="true" style="display:none;">
+            <div class="spinner" aria-hidden="true"></div>
+            <div class="loader-text">Cargando...</div>
+        </div>
+    </div>
+    
+    <div class="auth-container">
+        <!-- Decorative soft leaves illustration (refined colors using CSS variables) -->
+        <svg class="decorative-leaf" viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+            <defs>
+                <linearGradient id="leafGrad2" x1="0" x2="1">
+                    <stop offset="0%" stop-color="var(--success-color)" stop-opacity="0.14"/>
+                    <stop offset="100%" stop-color="var(--primary-color)" stop-opacity="0.08"/>
+                </linearGradient>
+            </defs>
+            <g fill="url(#leafGrad2)" transform="translate(0,40)">
+                <path d="M110 480c70-180 230-220 360-260 0 0-40 190-140 270S110 480 110 480z" />
+                <path d="M50 420c40-120 150-150 240-180 0 0-30 120-100 170S50 420 50 420z" opacity="0.9"/>
+            </g>
+        </svg>
+        <div class="auth-theme-toggle">
+            <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle theme">
+                <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <!-- Content injected by JS -->
+                </svg>
+            </button>
+        </div>
+
+        <div class="auth-card" role="region" aria-labelledby="login-heading">
+            <div class="auth-header">
+                <div class="auth-logo" aria-hidden="false">
+                    <!-- Attractive leaf/plant SVG -->
+                    <!-- Improved Natural Plant SVG -->
+                    <svg width="52" height="52" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                        <path d="M12 22c4.97 0 9-4.03 9-9c0-4.97-9-13-9-13S3 8.03 3 13c0 4.97 4.03 9 9 9z" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 13a5 5 0 0 0 4 2" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                        <path d="M12 13a5 5 0 0 1-4 2" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                        <path d="M12 22V9" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M12 9c0 0 2.5-3 5-3" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                        <path d="M12 9c0 0-2.5-3-5-3" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                    </svg>
+                </div>
+                <h1 id="login-heading" class="auth-title">Invernadero</h1>
+                <p class="auth-subtitle">Monitoreo y control para un crecimiento saludable</p>
+            </div>
+
+            <div class="error-message" id="error-message">
+                <strong>Error:</strong> <span id="error-text"></span>
+            </div>
+
+            <form class="auth-form" id="login-form" onsubmit="handleLogin(event)" autocomplete="off">
+                <div class="form-group">
+                    <label for="username" class="form-label">Usuario</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        class="form-input" 
+                        placeholder="Ingresa tu usuario"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="Ingresa tu contraseña"
+                        required
+                        autocomplete="new-password"
+                    >
+                </div>
+
+                <button type="submit" class="auth-btn">Iniciar Sesión</button>
+            </form>
+
+            <button type="button" class="auth-btn-secondary" onclick="handleGuestLogin()">Entrar como invitado</button>
+        </div>
+    </div>
+
+    <script>
+        // Theme Management (same as main page)
+        function initTheme() {
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const savedTheme = localStorage.getItem('theme');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                updateThemeIcon(true, false);
+            }
+            
+            themeToggleBtn.addEventListener('click', toggleTheme);
+        }
+
+        function toggleTheme() {
+            const isDark = document.body.classList.contains('dark-theme');
+            const overlay = document.getElementById('theme-transition-overlay');
+            
+            // Trigger overlay animation
+            overlay.classList.add('active');
+            setTimeout(() => overlay.classList.remove('active'), 400);
+            
+            // Toggle theme
+            if (isDark) {
+                document.body.classList.remove('dark-theme');
+                document.documentElement.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+                updateThemeIcon(false, true);
+                // Remove inline styles to let CSS take over for light mode
+                document.documentElement.removeAttribute('style');
+                document.body.removeAttribute('style');
+            } else {
+                document.body.classList.add('dark-theme');
+                document.documentElement.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+                updateThemeIcon(true, false);
+                // Apply dark theme inline styles
+                document.documentElement.setAttribute('style', 'background-color: #0a0f1e !important;');
+                document.body.setAttribute('style', 'background-color: #0a0f1e !important; color: #ffffff !important;');
+            }
+        }
+
+        function updateThemeIcon(isDark, animate) {
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const currentIcon = themeToggleBtn.querySelector('.theme-icon');
+            
+            if (animate) {
+                // Create new icon for animation
+                const newIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                newIcon.setAttribute('class', 'theme-icon theme-icon-new');
+                newIcon.setAttribute('viewBox', '0 0 24 24');
+                newIcon.setAttribute('fill', 'none');
+                newIcon.setAttribute('stroke', 'currentColor');
+                newIcon.setAttribute('stroke-width', '2');
+
+                if (isDark) {
+                    // Switching to Dark -> Show Moon
+                    newIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+                    currentIcon.classList.add('sun-setting');
+                    newIcon.classList.add('moon-rising');
+                } else {
+                    // Switching to Light -> Show Sun
+                    newIcon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+                    currentIcon.classList.add('moon-setting');
+                    newIcon.classList.add('sun-rising');
+                }
+                
+                themeToggleBtn.appendChild(newIcon);
+                
+                // Cleanup after animation
+                setTimeout(() => {
+                    if (currentIcon && currentIcon.parentNode) currentIcon.remove();
+                    newIcon.classList.remove('theme-icon-new', 'moon-rising', 'sun-rising');
+                }, 1800);
+                
+            } else {
+                // Immediate update (no animation)
+                if (isDark) {
+                    currentIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+                } else {
+                    currentIcon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+                }
+            }
+        }
+
+        // Page transition function: show overlay+loader and navigate faster
+        function navigateWithTransition(url) {
+            try {
+                // Show an overlay and loader so users know something is happening
+                const overlay = document.getElementById('theme-transition-overlay');
+                const loader = document.getElementById('page-loader');
+                if (overlay) overlay.classList.add('active');
+                if (loader) loader.style.display = 'flex';
+
+                // Add a body class for exit animation (if body exists)
+                if (document.body) document.body.classList.add('page-exiting');
+
+                // Shorter delay so transition feels snappier
+                setTimeout(function() {
+                    window.location.href = url;
+                }, 120);
+            } catch(e) {
+                // Fallback to direct navigation on any error
+                console.error('Transition error:', e);
+                window.location.href = url;
+            }
+        }
+
+        // Authentication handlers
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Hide any previous errors
+            hideError();
+            
+            // Basic validation
+            if (!username || !password) {
+                showError('Por favor completa todos los campos');
+                return;
+            }
+            
+            // Here you would typically send the credentials to your backend
+            // For now, this is a demo implementation
+            console.log('Login attempt:', { username });
+            
+            // Simulate API call
+            // Replace this with actual authentication logic
+            if (username === 'Admin' && password === 'Admin1234') {
+                // Store session info
+                localStorage.setItem('isAuthenticated', 'true');
+                localStorage.setItem('username', username);
+                
+                // Redirect to main page with transition
+                navigateWithTransition('index.html');
+            } else {
+                showError('Usuario o contraseña incorrectos');
+            }
+        }
+
+        function handleGuestLogin() {
+            // Hide any previous errors
+            hideError();
+            
+            // Store guest session
+            localStorage.setItem('isAuthenticated', 'true');
+            localStorage.setItem('username', 'invitado');
+            localStorage.setItem('isGuest', 'true');
+            
+            // Redirect to view page (read-only) with transition
+            navigateWithTransition('view.html');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            errorText.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function hideError() {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.classList.remove('show');
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            // Check if user is already authenticated
+            const isAuthenticated = localStorage.getItem('isAuthenticated');
+            if (isAuthenticated === 'true') {
+                // Auto-redirect disabled to allow user to see login page
+                // navigateWithTransition('index.html');
+                // return;
+            }
+            
+            initTheme();
+            
+            // Clear fields for security
+            setTimeout(() => {
+                const userField = document.getElementById('username');
+                const passField = document.getElementById('password');
+                if (userField) userField.value = '';
+                if (passField) passField.value = '';
+            }, 100);
+        };
+    </script>
+</body>
+</html>
+

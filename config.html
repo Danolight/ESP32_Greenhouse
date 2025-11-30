@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Panel de Control</title>
+    <script>
+        // Apply theme IMMEDIATELY before anything else to prevent flash
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('theme');
+                const applyTheme = function() {
+                    if (document.body) {
+                        if (savedTheme === 'dark') {
+                            document.documentElement.classList.add('dark-theme');
+                            document.documentElement.setAttribute('style', 'background-color: #0a0f1e !important;');
+                            document.body.classList.add('dark-theme');
+                            document.body.setAttribute('style', 'background-color: #0a0f1e !important; color: #ffffff !important;');
+                        }
+                        // Mark theme as applied to show content
+                        document.body.classList.add('theme-applied');
+                    }
+                };
+                
+                if (savedTheme === 'dark') {
+                    // Apply class and styles immediately
+                    document.documentElement.classList.add('dark-theme');
+                    document.documentElement.setAttribute('style', 'background-color: #0a0f1e !important;');
+                    
+                    if (document.body) {
+                        applyTheme();
+                    } else {
+                        // If body doesn't exist yet, wait for it
+                        document.addEventListener('DOMContentLoaded', applyTheme);
+                        // Also try immediately in case DOMContentLoaded already fired
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', applyTheme);
+                        } else {
+                            applyTheme();
+                        }
+                    }
+                } else {
+                    // Even for light theme, mark as applied
+                    if (document.body) {
+                        document.body.classList.add('theme-applied');
+                    } else {
+                        document.addEventListener('DOMContentLoaded', function() {
+                            document.body.classList.add('theme-applied');
+                        });
+                    }
+                }
+            } catch(e) {
+                console.error('Error applying theme:', e);
+                // Show content even if there's an error
+                if (document.body) {
+                    document.body.classList.add('theme-applied');
+                }
+            }
+        })();
+    </script>
+    <style>
+        /* Critical theme styles to prevent flash - must be inline */
+        html {
+            background-color: #f3f4f6;
+        }
+        html.dark-theme {
+            background-color: #0a0f1e !important;
+        }
+        body {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            transition: background-color 0.5s ease, color 0.5s ease;
+            opacity: 1;
+        }
+        html.dark-theme body {
+            background-color: #0a0f1e !important;
+            color: #ffffff !important;
+        }
+        /* Hide content until theme is applied */
+        body:not(.theme-applied) {
+            opacity: 0;
+        }
+        body.theme-applied {
+            opacity: 1;
+            transition: opacity 0.1s ease;
+        }
+        /* Cards and containers */
+        html.dark-theme .calibration-card {
+            background: linear-gradient(135deg, #1e293b 0%, #1a2332 100%) !important;
+            border-color: #334155 !important;
+            color: #ffffff !important;
+        }
+        html.dark-theme .back-btn {
+            background: #1e293b !important;
+            border-color: #475569 !important;
+        }
+        html.dark-theme .back-btn svg {
+            color: #e2e8f0 !important;
+        }
+        /* Text elements */
+        html.dark-theme .config-title {
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+        }
+        html.dark-theme .calibration-card h3 {
+            color: #cbd5e1 !important;
+            opacity: 0.7 !important;
+        }
+        html.dark-theme .input-group label {
+            color: #cbd5e1 !important;
+        }
+        html.dark-theme .input-group .input-hint {
+            color: #94a3b8 !important;
+        }
+        /* Inputs */
+        html.dark-theme .input-group input {
+            background: #0f172a !important;
+            border-color: #475569 !important;
+            color: #f1f5f9 !important;
+        }
+        html.dark-theme .input-group input:focus {
+            border-color: #60a5fa !important;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
+        }
+        html.dark-theme .input-group input::placeholder {
+            color: #64748b !important;
+        }
+        /* Buttons */
+        html.dark-theme .btn-accept {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+        }
+        html.dark-theme .btn-download {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+        }
+        html.dark-theme .icon-timing {
+            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%) !important;
+        }
+        
+        /* Critical config title for instant rendering */
+        .config-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+        html.dark-theme .config-title {
+            color: #f3f4f6 !important;
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .config-container {
+            max-width: 1400px; /* Wider container for 4 columns */
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+
+        .config-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+        }
+
+        .back-btn:hover {
+            background: var(--bg-color);
+            color: var(--text-primary);
+            transform: translateX(-2px);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .config-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columns for larger cards */
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .config-grid {
+                grid-template-columns: 1fr; /* 1 column on smaller screens */
+            }
+        }
+
+        .calibration-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .calibration-card:hover {
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15), 0 10px 20px -5px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+        }
+
+        .calibration-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .calibration-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.4rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        .icon-soil { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+        .icon-tank { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
+        .icon-light { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+        .icon-timing { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; }
+
+        .input-group {
+            margin-bottom: 4px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--card-bg);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        .input-group .input-hint {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            opacity: 0.7;
+            line-height: 1.4;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center; /* Centered buttons */
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .action-btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-accept {
+            background: var(--success-color);
+            color: white;
+        }
+        .btn-accept:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-download {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        .btn-download:hover {
+            background: var(--bg-color);
+            border-color: var(--text-secondary);
+        }
+        
+        /* Dark theme specific overrides */
+        html.dark-theme .config-header {
+            border-bottom-color: #334155;
+        }
+        html.dark-theme .calibration-card {
+            background: linear-gradient(135deg, #111827 0%, #0f172a 100%) !important;
+            border-color: #1e293b !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        }
+        html.dark-theme .calibration-card:hover {
+            border-color: #60a5fa;
+            background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4) !important;
+        }
+        html.dark-theme .calibration-card h3 {
+            border-bottom-color: #334155;
+        }
+        html.dark-theme .input-group input {
+            background: #0f172a;
+            border-color: #334155;
+        }
+        html.dark-theme .input-group input:focus {
+            background: #1e293b;
+            border-color: #60a5fa;
+        }
+        html.dark-theme .action-buttons {
+            border-top-color: #334155;
+        }
+        html.dark-theme .btn-download {
+            background: #1e293b;
+            border-color: #334155;
+            color: #e2e8f0;
+        }
+        html.dark-theme .btn-download:hover {
+            background: #0f172a;
+            border-color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="config-container">
+        <!-- Header -->
+        <div class="config-header">
+            <button class="back-btn" onclick="goBack()" aria-label="Volver">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h1 class="config-title">Configuración</h1>
+        </div>
+
+        <!-- Calibration Cards -->
+        <div class="config-grid">
+            <!-- Soil Calibration -->
+            <div class="calibration-card">
+                <h3>
+                    <div class="calibration-icon icon-soil">S%</div>
+                    Calibración del Suelo
+                </h3>
+                <div class="input-group">
+                    <label for="soil-dry">Valor Seco (ADC)</label>
+                    <input type="number" id="soil-dry" value="2500" min="0" max="4095">
+                    <div class="input-hint">Valor cuando el sensor está en aire</div>
+                </div>
+                <div class="input-group">
+                    <label for="soil-wet">Valor Húmedo (ADC)</label>
+                    <input type="number" id="soil-wet" value="1000" min="0" max="4095">
+                    <div class="input-hint">Valor cuando el sensor está en agua</div>
+                </div>
+                <div class="input-group">
+                    <label for="soil-raw">Valor Crudo Medido</label>
+                    <input type="number" id="soil-raw" value="0" min="0" max="4095" readonly>
+                    <div class="input-hint">Lectura actual del sensor</div>
+                </div>
+                <div class="input-group">
+                    <label for="soil-threshold">Umbral de Riego (%)</label>
+                    <input type="number" id="soil-threshold" value="40" min="0" max="100">
+                    <div class="input-hint">Activar riego cuando humedad < umbral</div>
+                </div>
+            </div>
+
+            <!-- Tank Calibration -->
+            <div class="calibration-card">
+                <h3>
+                    <div class="calibration-icon icon-tank">T%</div>
+                    Calibración del Tanque
+                </h3>
+                <div class="input-group">
+                    <label for="tank-empty">Distancia Vacío (cm)</label>
+                    <input type="number" id="tank-empty" value="15.0" step="0.1" min="0" max="400">
+                    <div class="input-hint">Distancia al fondo del tanque (0%)</div>
+                </div>
+                <div class="input-group">
+                    <label for="tank-full">Distancia Lleno (cm)</label>
+                    <input type="number" id="tank-full" value="8.5" step="0.1" min="0" max="400">
+                    <div class="input-hint">Distancia cuando está lleno (100%)</div>
+                </div>
+                <div class="input-group">
+                    <label for="tank-raw">Distancia Medida (cm)</label>
+                    <input type="number" id="tank-raw" value="0.0" step="0.1" min="0" max="400" readonly>
+                    <div class="input-hint">Lectura actual del sensor</div>
+                </div>
+                <div class="input-group">
+                    <label for="tank-critical">Nivel Crítico (%)</label>
+                    <input type="number" id="tank-critical" value="20" min="0" max="100">
+                    <div class="input-hint">Nivel mínimo para riego</div>
+                </div>
+            </div>
+
+            <!-- Light Calibration -->
+            <div class="calibration-card">
+                <h3>
+                    <div class="calibration-icon icon-light">L%</div>
+                    Calibración de Luces
+                </h3>
+                <div class="input-group">
+                    <label for="light-max">Valor Máximo (crudo)</label>
+                    <input type="number" id="light-max" value="4095" min="0" max="4095">
+                    <div class="input-hint">Luz intensa</div>
+                </div>
+                <div class="input-group">
+                    <label for="light-min">Valor Mínimo (crudo)</label>
+                    <input type="number" id="light-min" value="0" min="0" max="4095">
+                    <div class="input-hint">Oscuridad</div>
+                </div>
+                <div class="input-group">
+                    <label for="light-raw">Valor Crudo Medido</label>
+                    <input type="number" id="light-raw" value="1200" min="0" max="4095" readonly>
+                    <div class="input-hint">Lectura actual</div>
+                </div>
+                <div class="input-group">
+                    <label for="light-low">Umbral Bajo (%)</label>
+                    <input type="number" id="light-low" value="40" min="0" max="100">
+                    <div class="input-hint">Encender luces si luz &lt; umbral</div>
+                </div>
+                <div class="input-group">
+                    <label for="light-high">Umbral Alto (%)</label>
+                    <input type="number" id="light-high" value="70" min="0" max="100">
+                    <div class="input-hint">Apagar luces si luz &gt; umbral</div>
+                </div>
+            </div>
+
+            <!-- Timing & Polling Configuration -->
+            <div class="calibration-card">
+                <h3>
+                    <div class="calibration-icon icon-timing">⏱</div>
+                    Configuración de Tiempo
+                </h3>
+                <div class="input-group">
+                    <label for="data-send-interval">Intervalo de Envío de Datos (min)</label>
+                    <input type="number" id="data-send-interval" value="10" min="1" max="120" step="1">
+                    <div class="input-hint">Cada cuántos minutos se envían los datos al servidor</div>
+                </div>
+                <div class="input-group">
+                    <label for="server-polling-interval">Intervalo de Polling del Servidor (seg)</label>
+                    <input type="number" id="server-polling-interval" value="2" min="1" max="60" step="1">
+                    <div class="input-hint">Cada cuántos segundos el cliente consulta datos</div>
+                </div>
+                <div class="input-group">
+                    <label for="status-polling-interval">Intervalo de Polling de Estado (seg)</label>
+                    <input type="number" id="status-polling-interval" value="30" min="5" max="300" step="5">
+                    <div class="input-hint">Cada cuántos segundos se verifica el estado del sistema</div>
+                </div>
+                <div class="input-group">
+                    <label for="chart-history">Historial de Gráficos (horas)</label>
+                    <input type="number" id="chart-history" value="4" min="1" max="24" step="1">
+                    <div class="input-hint">Duración del historial mostrado en los gráficos</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="action-btn btn-accept" onclick="saveConfig()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Aceptar
+            </button>
+            <button class="action-btn btn-download" onclick="downloadData()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Descargar Datos
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Page transition function
+        function navigateWithTransition(url) {
+            document.body.classList.add('page-exiting');
+            setTimeout(function() {
+                window.location.href = url;
+            }, 200);
+        }
+        
+        function goBack() {
+            // Check if running on local dev server (localhost/127.0.0.1) or ESP32
+            let targetUrl;
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                // Local development server - index.html is in data/ folder
+                targetUrl = 'index.html';
+            } else if (window.location.protocol === 'file:') {
+                // File protocol - same folder
+                targetUrl = 'index.html';
+            } else {
+                // ESP32 server - go to index
+                targetUrl = 'index.html';
+            }
+            
+            // Navigate with transition
+            navigateWithTransition(targetUrl);
+        }
+
+        function saveConfig() {
+            const config = {
+                soil: {
+                    dry: parseInt(document.getElementById('soil-dry').value),
+                    wet: parseInt(document.getElementById('soil-wet').value),
+                    threshold: parseInt(document.getElementById('soil-threshold').value)
+                },
+                tank: {
+                    empty: parseFloat(document.getElementById('tank-empty').value),
+                    full: parseFloat(document.getElementById('tank-full').value),
+                    critical: parseInt(document.getElementById('tank-critical').value)
+                },
+                light: {
+                    low: parseInt(document.getElementById('light-low').value),
+                    high: parseInt(document.getElementById('light-high').value)
+                },
+                timing: {
+                    dataSendInterval: parseInt(document.getElementById('data-send-interval').value),
+                    serverPollingInterval: parseInt(document.getElementById('server-polling-interval').value),
+                    statusPollingInterval: parseInt(document.getElementById('status-polling-interval').value),
+                    chartHistory: parseInt(document.getElementById('chart-history').value)
+                }
+            };
+
+            console.log('Configuración guardada:', config);
+            
+            // TODO: Send to backend
+            alert('Configuración guardada exitosamente!\n\nNota: Esta función enviará los datos al ESP32 en la versión final.');
+        }
+
+        function downloadData() {
+            // TODO: Fetch data from backend and create CSV
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "Timestamp,Temperatura,Humedad,Suelo,Tanque,Luz\n"
+                + "2024-01-01 10:00,25.5,60,45,80,75\n"
+                + "2024-01-01 10:10,25.7,61,44,79,76\n";
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "datos_invernadero.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log('Datos descargados');
+        }
+
+        // Fetch current sensor data to populate raw fields
+        function fetchCurrentData() {
+            // Check if running on ESP32 or local simulation
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') {
+                console.log("Local mode: Simulating raw data");
+                document.getElementById('soil-raw').value = 2048;
+                document.getElementById('tank-raw').value = 12.5;
+                document.getElementById('light-raw').value = 3500;
+                return;
+            }
+
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    // Populate Raw Values
+                    if (data.soilRaw !== undefined) document.getElementById('soil-raw').value = data.soilRaw;
+                    if (data.tankDistance !== undefined) document.getElementById('tank-raw').value = data.tankDistance.toFixed(1);
+                    if (data.lightRaw !== undefined) document.getElementById('light-raw').value = data.lightRaw;
+                    
+                    // Populate Configuration Values if available
+                    if (data.config) {
+                        document.getElementById('soil-dry').value = data.config.soilDry;
+                        document.getElementById('soil-wet').value = data.config.soilWet;
+                        document.getElementById('soil-threshold').value = data.config.soilThreshold;
+                        
+                        document.getElementById('tank-empty').value = data.config.tankEmpty;
+                        document.getElementById('tank-full').value = data.config.tankFull;
+                        document.getElementById('tank-critical').value = data.config.tankCritical;
+                        
+                        document.getElementById('light-min').value = data.config.lightMin;
+                        document.getElementById('light-max').value = data.config.lightMax;
+                        document.getElementById('light-low').value = data.config.lightLow;
+                        document.getElementById('light-high').value = data.config.lightHigh;
+                        
+                        document.getElementById('data-send-interval').value = data.config.dataSendInterval;
+                        document.getElementById('server-polling-interval').value = data.config.serverPollingInterval;
+                        document.getElementById('status-polling-interval').value = data.config.statusPollingInterval;
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function downloadData() {
+            console.log('Descargando datos históricos...');
+            
+            // Fetch data from server
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.history || data.history.length === 0) {
+                        alert('No hay datos históricos disponibles');
+                        return;
+                    }
+                    
+                    // Generate CSV with improved format (separated by parameter)
+                    let csv = '';
+                    
+                    // Temperature section
+                    csv += 'TEMPERATURA\n';
+                    csv += 'Hora de Medición,Temperatura (°C)\n';
+                    data.history.forEach(record => {
+                        const timestamp = formatTimestamp(record.timestamp, data.lastMeasurementTime);
+                        const temp = record.temp !== undefined && record.temp !== -999 ? record.temp.toFixed(1) : 'ERROR';
+                        csv += `${timestamp},${temp}\n`;
+                    });
+                    csv += '\n';
+                    
+                    // Humidity section
+                    csv += 'HUMEDAD RELATIVA\n';
+                    csv += 'Hora de Medición,Humedad (%)\n';
+                    data.history.forEach(record => {
+                        const timestamp = formatTimestamp(record.timestamp, data.lastMeasurementTime);
+                        const humidity = record.humidity !== undefined && record.humidity !== -999 ? record.humidity.toFixed(0) : 'ERROR';
+                        csv += `${timestamp},${humidity}\n`;
+                    });
+                    csv += '\n';
+                    
+                    // Soil moisture section
+                    csv += 'HUMEDAD DEL SUELO\n';
+                    csv += 'Hora de Medición,Humedad del Suelo (%)\n';
+                    data.history.forEach(record => {
+                        const timestamp = formatTimestamp(record.timestamp, data.lastMeasurementTime);
+                        const soil = record.soil !== undefined && record.soil !== -999 ? record.soil.toFixed(0) : 'ERROR';
+                        csv += `${timestamp},${soil}\n`;
+                    });
+                    csv += '\n';
+                    
+                    // Light section
+                    csv += 'LUMINOSIDAD\n';
+                    csv += 'Hora de Medición,Luminosidad (%)\n';
+                    data.history.forEach(record => {
+                        const timestamp = formatTimestamp(record.timestamp, data.lastMeasurementTime);
+                        const light = record.light !== undefined && record.light !== -999 ? record.light.toFixed(0) : 'ERROR';
+                        csv += `${timestamp},${light}\n`;
+                    });
+                    
+                    // Create download
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    const now = new Date();
+                    const filename = `datos_invernadero_${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}-${now.getMinutes().toString().padStart(2,'0')}.csv`;
+                    
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', filename);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    console.log(`Descargados ${data.history.length} registros`);
+                })
+                .catch(error => {
+                    console.error('Error al descargar datos:', error);
+                    alert('Error al obtener los datos del servidor');
+                });
+        }
+        
+        function formatTimestamp(timestamp, systemNow) {
+            if (!timestamp) return 'N/A';
+            
+            // Check if timestamp is epoch (> 1e10) or millis since boot
+            if (timestamp > 10000000000) {
+                // Epoch timestamp
+                const date = new Date(timestamp);
+                return date.toLocaleString('es-ES', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            } else {
+                // Millis since boot - convert to relative time
+                const now = Date.now();
+                const age = systemNow - timestamp;
+                const pointTime = new Date(now - age);
+                return pointTime.toLocaleString('es-ES', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            }
+        }
+
+        function saveConfig() {
+            const config = {
+                soilDry: parseInt(document.getElementById('soil-dry').value),
+                soilWet: parseInt(document.getElementById('soil-wet').value),
+                soilThreshold: parseInt(document.getElementById('soil-threshold').value),
+                
+                tankEmpty: parseFloat(document.getElementById('tank-empty').value),
+                tankFull: parseFloat(document.getElementById('tank-full').value),
+                tankCritical: parseInt(document.getElementById('tank-critical').value),
+                
+                lightMin: parseInt(document.getElementById('light-min').value),
+                lightMax: parseInt(document.getElementById('light-max').value),
+                lightLow: parseInt(document.getElementById('light-low').value),
+                lightHigh: parseInt(document.getElementById('light-high').value),
+                
+                dataSendInterval: parseInt(document.getElementById('data-send-interval').value),
+                serverPollingInterval: parseInt(document.getElementById('server-polling-interval').value),
+                statusPollingInterval: parseInt(document.getElementById('status-polling-interval').value)
+            };
+
+            console.log('Guardando configuración:', config);
+            
+            // Send to backend
+            fetch('/action', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ config: config })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Configuración guardada exitosamente!');
+                    // Refresh data to verify
+                    fetchCurrentData();
+                } else {
+                    alert('Error al guardar la configuración');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión al guardar');
+            });
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', fetchCurrentData);
+    </script>
+</body>
+</html>
